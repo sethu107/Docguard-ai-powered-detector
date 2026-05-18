@@ -1,9 +1,13 @@
-clip @ git+https://github.com/openai/CLIP.git
+blinker==1.9.0
+click==8.4.0
+clip-anytorch==2.6.0
 colorama==0.4.6
 faiss-cpu==1.12.0
 filelock==3.19.1
+Flask==3.1.3
 fsspec==2025.9.0
 ftfy==6.3.1
+itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
 mpmath==1.3.0
@@ -12,13 +16,12 @@ numpy==2.3.3
 packaging==25.0
 pdf2image==1.17.0
 pillow==11.3.0
-python-dateutil==2.9.0.post0
 regex==2025.9.1
-six==1.17.0
-torch 
-torchaudio 
-torchvision 
+sympy==1.14.0
+torch==2.8.0
+torchvision==0.23.0
 tqdm==4.67.1
 typing_extensions==4.15.0
 watchdog==6.0.0
 wcwidth==0.2.13
+Werkzeug==3.1.8
