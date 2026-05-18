@@ -8,13 +8,28 @@ import json
 import gc
 
 # ----------------------------
-# Setup CLIP
+# Device Setup
 # ----------------------------
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-model, preprocess = clip.load("ViT-B/32", device=device)
+device = "cpu"
 
 print(f"Using device: {device}")
+
+# ----------------------------
+# Lazy Load CLIP Model
+# ----------------------------
+model = None
+preprocess = None
+
+
+def get_model():
+    global model, preprocess
+
+    if model is None:
+        # Smaller model for Render free tier
+        model, preprocess = clip.load("RN50", device=device)
+
+    return model, preprocess
+
 
 # ----------------------------
 # Database files
@@ -39,12 +54,12 @@ if (
     index = faiss.read_index(faiss_file)
 
 else:
-    all_embeddings = np.empty((0, 512), dtype="float16")
+    all_embeddings = np.empty((0, 1024), dtype="float16")
 
     file_index = []
 
-    # cosine similarity
-    index = faiss.IndexFlatIP(512)
+    # RN50 output size = 1024
+    index = faiss.IndexFlatIP(1024)
 
 # ----------------------------
 # Helper Functions
@@ -64,7 +79,9 @@ def save_database():
 # ----------------------------
 # Memory Optimized PDF Embedding
 # ----------------------------
-def pdf_to_embedding(pdf_path, dpi=50):
+def pdf_to_embedding(pdf_path, dpi=40):
+
+    model, preprocess = get_model()
 
     pages = convert_from_path(pdf_path, dpi=dpi)
 
@@ -80,14 +97,11 @@ def pdf_to_embedding(pdf_path, dpi=50):
 
             embeddings.append(emb)
 
-            # free memory
+            # Free memory
             del img
             del page
 
             gc.collect()
-
-            if device == "cuda":
-                torch.cuda.empty_cache()
 
     # Average embedding
     final_embedding = np.mean(embeddings, axis=0)
